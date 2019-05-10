@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
     listAllBooks();
+    getUser();
     var book = {};
     var url = "";
     var method = "";
@@ -9,9 +10,9 @@
         book.authorName = $('#authorName').val();
         book.genreName = $('#genreName').val();
         var bookObj = JSON.stringify(book);
-        if (validateForm(book.authorName) || validateForm(book.bookName) || validateForm(book.genreName)) {
+        if (validateForm()) {
             if (book.bookId) {
-                url = "/api/v1/books/" + book.bookId;
+                url = "/api/v1/edit/" + book.bookId;
                 method = 'PUT';
             } else {
                 url = "/api/v1/books";
@@ -26,27 +27,41 @@
                     listAllBooks();
                     reset();
                 },
-                error: function (error) {
-                    alert(error);
+                error: function (xhr, error) {
+                    if (xhr.status == 403) {
+                        reset();
+                        alert("У вас недостаточно прав!")
+                    } else {
+                        alert(error)
+                    }
+                    ;
                 }
             })
         }
-        else {
-            alert('Не все поля заполнены!');
-            return;
-        }
-
+        return;
     });
 });
 
-function validateForm(s) {
-    s = s.replace(/^\s+|\s+$/g, '')
-    if (!s) {
-        return false;                loc
-    }
+function validateForm() {
+    var b = $('#bookName').val();
+    var c = $('#authorName').val();
+    var d = $('#genreName').val();
 
+    if (b == null || b == "") {
+        alert("Имя книги не заполнено!");
+        return false;
+    }
+    if (c == null || c == "") {
+        alert("Укажите автора!");
+        return false;
+    }
+    if (d == null || d == "") {
+        alert("Укажите жанр!");
+        return false;
+    }
     return true;
 }
+
 
 function listAllBooks() {
     $.get('/api/v1/books').done(function (books) {
@@ -69,13 +84,18 @@ function listAllBooks() {
 
 function deleteBook(bookId) {
     $.ajax({
-        url: '/api/v1/books/' + bookId,
+        url: '/api/v1/delete/' + bookId,
         method: 'DELETE',
         success: function () {
             listAllBooks();
         },
-        error: function (error) {
-            alert(error);
+        error: function (xhr, error) {
+            if (xhr.status == 403) {
+                alert("У вас недостаточно прав!")
+            } else {
+                alert(error)
+            }
+            ;
         }
     })
 }
@@ -92,6 +112,30 @@ function updateBook(bookId) {
             $('#genreName').val(data.genre.genreName);
             document.getElementById("authorName").disabled = true;
             document.getElementById("genreName").disabled = true;
+        },
+        error: function (xhr, error) {
+            if (xhr.status == 403) {
+                reset();
+                alert("У вас недостаточно прав!")
+
+            } else {
+                alert(error)
+            }
+            ;
+        }
+    })
+}
+
+
+function getUser() {
+    $.ajax({
+        url: '/username',
+        method: 'GET',
+        data: 'json',
+        contentType: 'application/json; charset=utf-8',
+        success: function (data) {
+            // noinspection JSAnnotator
+            $('#user').append(`<span>${data}</span>`);
         },
         error: function (error) {
             alert(error);

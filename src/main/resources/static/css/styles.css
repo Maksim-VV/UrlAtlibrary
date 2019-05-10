@@ -1,5 +1,25 @@
 body {
     padding: 50px;
+
+}
+
+table.headerTab {
+    min-width: 540px;
+}
+
+.headerTab > tr > td {
+    width: 100%;
+}
+
+.hederHello {
+    color: maroon;
+    font-style: oblique;
+    text-align: right;
+}
+
+.title {
+    text-align: left;
+    color: maroon;
 }
 
 table.books-list {

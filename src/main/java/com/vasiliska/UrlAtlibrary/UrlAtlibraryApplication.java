@@ -8,7 +8,5 @@ public class UrlAtlibraryApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(UrlAtlibraryApplication.class, args);
-
     }
-
 }

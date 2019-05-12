@@ -84,7 +84,7 @@ function listAllBooks() {
 
 function deleteBook(bookId) {
     $.ajax({
-        url: '/api/v1/delete/' + bookId,
+        url: '/api/v1/books/' + bookId,
         method: 'DELETE',
         success: function () {
             listAllBooks();

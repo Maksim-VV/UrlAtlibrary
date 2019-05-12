@@ -41,7 +41,7 @@ public class BookController {
         return BookDto.toDto(bookService.bookByName(bookService.getBookByBookId(bookId)));
     }
 
-    @DeleteMapping("/api/v1/delete/{bookId}")
+    @DeleteMapping("/api/v1/books/{bookId}")
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteById(@PathVariable("bookId") Long bookId) {
         bookService.delBook(bookService.getBookByBookId(bookId));

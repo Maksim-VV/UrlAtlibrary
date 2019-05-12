@@ -46,12 +46,12 @@ public class BookControllerTest {
         createTestBook();
     }
 
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     @Test
     public void addNewBook() throws Exception {
         BookDto bookDto = new BookDto(1L, TEST_BOOK_NAME, null, null);
         ObjectMapper objectMapper = new ObjectMapper();
-        mvc.perform(post("/api/v1/books")
+        this.mvc.perform(post("/api/v1/books")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(objectMapper.writeValueAsString(testBook)))
                 .andExpect(status().isOk());
@@ -62,24 +62,65 @@ public class BookControllerTest {
 
     @WithMockUser
     @Test
-    public void getBookById() throws Exception {
-        when(bookService.getBookByBookId(1L)).thenReturn(TEST_BOOK_NAME);
-        when(bookService.bookByName(TEST_BOOK_NAME)).thenReturn(testBook);
-        mvc.perform(get("/api/v1/books/1")).andExpect(status().isOk());
-        verify(bookService, times(1)).getBookByBookId(1L);
+    public void addNewBookShouldCheckUserRole() throws Exception {
+        BookDto bookDto = new BookDto(1L, TEST_BOOK_NAME, null, null);
+        ObjectMapper objectMapper = new ObjectMapper();
+        this.mvc.perform(post("/api/v1/books")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(testBook)))
+                .andExpect(status().isForbidden());
+        verify(bookService, times(0))
+                .addNewBook(bookDto.getBookName(), bookDto.getAuthorName(), bookDto.getGenreName());
     }
+
 
     @WithMockUser
     @Test
-    public void deleteById() throws Exception {
-        this.mvc.perform(delete("/api/v1/books/1"))
-                .andExpect(status().isOk());
-        verify(bookService, times(1))
-                .delBook(bookService.getBookByBookId(1L));
+    public void getBookById() throws Exception {
+        when(bookService.getBookByBookId(1L)).thenReturn(TEST_BOOK_NAME);
+        when(bookService.bookByName(TEST_BOOK_NAME)).thenReturn(testBook);
+        this.mvc.perform(get("/api/v1/books/1")).andExpect(status().isOk());
+        verify(bookService, times(1)).getBookByBookId(1L);
     }
 
-    private void createTestBook() {
 
+    @WithMockUser
+    @Test
+    public void deleteByIdShouldCheckUserRole() throws Exception {
+        this.mvc.perform(delete("/api/v1/delete/1")).andExpect(status().isForbidden());
+        verify(bookService, times(0)).delBook(bookService.getBookByBookId(1L));
+    }
+
+
+    @WithMockUser(roles = "ADMIN")
+    @Test
+    public void deleteById() throws Exception {
+        this.mvc.perform(delete("/api/v1/delete/1"))
+                .andExpect(status().isOk());
+        verify(bookService, times(1)).delBook(bookService.getBookByBookId(1L));
+    }
+
+    @WithMockUser(roles = "ADMIN")
+    @Test
+    public void testAuthenticatedAdmin() throws Exception {
+        this.mvc.perform(get("/")).andExpect(status().isOk());
+        this.mvc.perform(get("/api/v1/books")).andExpect(status().isOk());
+        this.mvc.perform(delete("/api/v1/delete/1")).andExpect(status().isOk());
+    }
+
+
+    @Test
+    public void testNotAuthenticatedAccess() throws Exception {
+        this.mvc.perform(get("/")).andExpect(status().isFound());
+        this.mvc.perform(get("/api/v1/books/1")).andExpect(status().isFound());
+        this.mvc.perform(get("/api/v1/books")).andExpect(status().isFound());
+        this.mvc.perform(post("/api/v1/books")).andExpect(status().isFound());
+        this.mvc.perform(delete("/api/v1/books/1")).andExpect(status().isFound());
+        this.mvc.perform(put("/api/v1/edit/1")).andExpect(status().isFound());
+    }
+
+
+    private void createTestBook() {
         author = new Author(TEST_AUTHOR);
         author.setAuthorId(1L);
 
@@ -89,6 +130,5 @@ public class BookControllerTest {
         testBook = new Book(TEST_BOOK_NAME, author, genre);
         testBook.setBookId(1L);
     }
-
 
 }

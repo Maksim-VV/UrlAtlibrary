@@ -34,9 +34,4 @@ public class Book {
     public Book() {
     }
 
-    @Override
-    public String toString() {
-        return bookName + " " + author.getAuthorName() + " " + genre.getGenreName()+"\n";
-    }
-
 }

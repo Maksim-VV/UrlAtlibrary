@@ -53,7 +53,7 @@ public class BookController {
         bookService.addNewBook(bookDto.getBookName(), bookDto.getAuthorName(), bookDto.getGenreName());
     }
 
-    @PutMapping("/api/v1/edit/{bookId}")
+    @PutMapping("/api/v1/books/{bookId}")
     @PreAuthorize("hasRole('ADMIN')")
     public void update(@PathVariable("bookId") Long bookId, @RequestBody BookDto bookDto) {
         bookService.updateBookNameById(bookId, bookDto.getBookName());

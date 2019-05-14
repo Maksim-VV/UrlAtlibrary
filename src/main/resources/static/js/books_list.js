@@ -12,7 +12,7 @@
         var bookObj = JSON.stringify(book);
         if (validateForm()) {
             if (book.bookId) {
-                url = "/api/v1/edit/" + book.bookId;
+                url = "/api/v1/books/" + book.bookId;
                 method = 'PUT';
             } else {
                 url = "/api/v1/books";
